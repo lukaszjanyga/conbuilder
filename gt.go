@@ -21,3 +21,11 @@ func (gt GT) Subbed() string {
 func (gt GT) AV() map[string]*dynamodb.AttributeValue {
 	return nil
 }
+
+func (cf ConditionFunc) GT(field, value string) ConditionFunc {
+	return func(id ...string) Condition {
+		c := cf(id...)
+		c.Clauses = append(c.Clauses, GT{clauseID(c), field, value})
+		return c
+	}
+}

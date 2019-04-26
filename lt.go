@@ -26,3 +26,11 @@ func (lt LT) AV() map[string]*dynamodb.AttributeValue {
 		key: &value,
 	}
 }
+
+func (cf ConditionFunc) LT(field, value string, typ ...string) ConditionFunc {
+	return func(id ...string) Condition {
+		c := cf(id...)
+		c.Clauses = append(c.Clauses, LT{clauseID(c), field, value, typ})
+		return c
+	}
+}

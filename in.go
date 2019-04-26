@@ -22,3 +22,11 @@ func (i In) Subbed() string {
 func (i In) AV() map[string]*dynamodb.AttributeValue {
 	return nil
 }
+
+func (cf ConditionFunc) In(field string, operands ...string) ConditionFunc {
+	return func(id ...string) Condition {
+		c := cf(id...)
+		c.Clauses = append(c.Clauses, In{id: clauseID(c), Field: field, Operands: operands})
+		return c
+	}
+}

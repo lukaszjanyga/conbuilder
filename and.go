@@ -19,3 +19,11 @@ func (a And) Subbed() string {
 func (a And) AV() map[string]*dynamodb.AttributeValue {
 	return nil
 }
+
+func (cf ConditionFunc) And() ConditionFunc {
+	return func(id ...string) Condition {
+		c := cf(id...)
+		c.Clauses = append(c.Clauses, And{id: clauseID(c)})
+		return c
+	}
+}

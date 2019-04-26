@@ -21,3 +21,11 @@ func (bw BeginsWith) Subbed() string {
 func (bw BeginsWith) AV() map[string]*dynamodb.AttributeValue {
 	return nil
 }
+
+func (cf ConditionFunc) BeginsWith(path, substr string) ConditionFunc {
+	return func(id ...string) Condition {
+		c := cf(id...)
+		c.Clauses = append(c.Clauses, BeginsWith{clauseID(c), path, substr})
+		return c
+	}
+}

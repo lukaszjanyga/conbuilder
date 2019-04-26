@@ -30,3 +30,11 @@ func (b Between) AV() map[string]*dynamodb.AttributeValue {
 		keyRight: &valueRight,
 	}
 }
+
+func (cf ConditionFunc) Between(field, boundLeft, boundRight string, typ ...string) ConditionFunc {
+	return func(id ...string) Condition {
+		c := cf(id...)
+		c.Clauses = append(c.Clauses, Between{clauseID(c), field, boundLeft, boundRight, typ})
+		return c
+	}
+}

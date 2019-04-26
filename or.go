@@ -17,5 +17,13 @@ func (o Or) Subbed() string {
 }
 
 func (o Or) AV() map[string]*dynamodb.AttributeValue {
-	return map[string]*dynamodb.AttributeValue{}
+	return nil
+}
+
+func (cf ConditionFunc) Or() ConditionFunc {
+	return func(id ...string) Condition {
+		c := cf(id...)
+		c.Clauses = append(c.Clauses, Or{})
+		return c
+	}
 }

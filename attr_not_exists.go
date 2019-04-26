@@ -20,3 +20,11 @@ func (ane AttrNotExists) Subbed() string {
 func (ane AttrNotExists) AV() map[string]*dynamodb.AttributeValue {
 	return nil
 }
+
+func (cf ConditionFunc) AttrNotExists(path string) ConditionFunc {
+	return func(id ...string) Condition {
+		c := cf(id...)
+		c.Clauses = append(c.Clauses, AttrNotExists{clauseID(c), path})
+		return c
+	}
+}

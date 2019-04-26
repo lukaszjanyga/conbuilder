@@ -20,3 +20,11 @@ func (s Size) Subbed() string {
 func (s Size) AV() map[string]*dynamodb.AttributeValue {
 	return nil
 }
+
+func (cf ConditionFunc) Size(path string) ConditionFunc {
+	return func(id ...string) Condition {
+		c := cf(id...)
+		c.Clauses = append(c.Clauses, Size{clauseID(c), path})
+		return c
+	}
+}

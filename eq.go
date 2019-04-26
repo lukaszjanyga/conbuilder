@@ -8,6 +8,7 @@ type Eq struct {
 	id    string
 	Field string
 	Value string
+	typ   []string
 }
 
 func (e Eq) String() string {
@@ -15,9 +16,19 @@ func (e Eq) String() string {
 }
 
 func (e Eq) Subbed() string {
-	return e.Field + " = " + e.Value
+	return e.Field + " = " + subKey(e.id)
 }
 
 func (e Eq) AV() map[string]*dynamodb.AttributeValue {
-	return nil
+	key := subKey(e.id)
+	value := valueOfType(e.Value, e.typ...)
+	return map[string]*dynamodb.AttributeValue{key: &value}
+}
+
+func (cf ConditionFunc) Eq(field, value string, typ ...string) ConditionFunc {
+	return func(id ...string) Condition {
+		c := cf(id...)
+		c.Clauses = append(c.Clauses, Eq{clauseID(c), field, value, typ})
+		return c
+	}
 }

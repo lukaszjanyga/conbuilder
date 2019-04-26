@@ -3,6 +3,7 @@ package conbuilder
 import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"strconv"
 )
 
 func clauseID(parent Condition) string {
@@ -20,6 +21,9 @@ func valueOfType(value string, typ ...string) dynamodb.AttributeValue {
 	switch typ[0] {
 	case "N", "n":
 		return dynamodb.AttributeValue{N: &value}
+	case "B", "b":
+		val, _ := strconv.ParseBool(value)
+		return dynamodb.AttributeValue{BOOL: &val}
 	}
 	return dynamodb.AttributeValue{S: &value}
 }

@@ -21,3 +21,11 @@ func (gte GTE) Subbed() string {
 func (gte GTE) AV() map[string]*dynamodb.AttributeValue {
 	return nil
 }
+
+func (cf ConditionFunc) GTE(field, value string) ConditionFunc {
+	return func(id ...string) Condition {
+		c := cf(id...)
+		c.Clauses = append(c.Clauses, GTE{clauseID(c), field, value})
+		return c
+	}
+}

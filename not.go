@@ -20,3 +20,13 @@ func (n Not) Subbed() string {
 func (n Not) AV() map[string]*dynamodb.AttributeValue {
 	return n.Condition.AV()
 }
+
+func (cf ConditionFunc) Not(condFunc ConditionFunc) ConditionFunc {
+	return func(id ...string) Condition {
+		c := cf(id...)
+		innerID := clauseID(c)
+		condition := condFunc(innerID)
+		c.Clauses = append(c.Clauses, Not{innerID, condition})
+		return c
+	}
+}

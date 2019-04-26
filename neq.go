@@ -26,3 +26,11 @@ func (ne NEq) AV() map[string]*dynamodb.AttributeValue {
 		key: &value,
 	}
 }
+
+func (cf ConditionFunc) NEq(field, value string, typ ...string) ConditionFunc {
+	return func(id ...string) Condition {
+		c := cf(id...)
+		c.Clauses = append(c.Clauses, NEq{clauseID(c), field, value, typ})
+		return c
+	}
+}
