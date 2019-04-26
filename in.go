@@ -1,6 +1,7 @@
 package conbuilder
 
 import (
+	"fmt"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"strings"
 )
@@ -9,6 +10,7 @@ type In struct {
 	id       string
 	Field    string
 	Operands []string
+	Typ      string
 }
 
 func (i In) String() string {
@@ -16,17 +18,26 @@ func (i In) String() string {
 }
 
 func (i In) Subbed() string {
-	return i.Field + " IN (" + strings.Join(i.Operands, ", ") + ")"
+	subs := []string{}
+	for cnt := range i.Operands {
+		subs = append(subs, subKey(i.id)+fmt.Sprintf("in%d", cnt))
+	}
+	return i.Field + " IN (" + strings.Join(subs, ", ") + ")"
 }
 
 func (i In) AV() map[string]*dynamodb.AttributeValue {
-	return nil
+	avs := map[string]*dynamodb.AttributeValue{}
+	for cnt, op := range i.Operands {
+		val := valueOfType(op, i.Typ)
+		avs[subKey(i.id)+fmt.Sprintf("in%d", cnt)] = &val
+	}
+	return avs
 }
 
-func (cf ConditionFunc) In(field string, operands ...string) ConditionFunc {
+func (cf ConditionFunc) In(field string, typ string, operands ...string) ConditionFunc {
 	return func(id ...string) Condition {
 		c := cf(id...)
-		c.Clauses = append(c.Clauses, In{id: clauseID(c), Field: field, Operands: operands})
+		c.Clauses = append(c.Clauses, In{id: clauseID(c), Field: field, Operands: operands, Typ: typ})
 		return c
 	}
 }

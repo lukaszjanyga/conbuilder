@@ -15,11 +15,13 @@ func (at AttrType) String() string {
 }
 
 func (at AttrType) Subbed() string {
-	return "attribute_type(" + at.Path + "," + at.Type + ")"
+	return "attribute_type(" + at.Path + "," + subKey(at.id) + ")"
 }
 
 func (at AttrType) AV() map[string]*dynamodb.AttributeValue {
-	return nil
+	key := subKey(at.id)
+	value := valueOfType(at.Type)
+	return map[string]*dynamodb.AttributeValue{key: &value}
 }
 
 func (cf ConditionFunc) AttrType(path, attrType string) ConditionFunc {

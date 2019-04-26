@@ -8,6 +8,7 @@ type Contains struct {
 	id      string
 	Path    string
 	Operand string
+	Typ     []string
 }
 
 func (c Contains) String() string {
@@ -15,17 +16,19 @@ func (c Contains) String() string {
 }
 
 func (c Contains) Subbed() string {
-	return "contains(" + c.Path + "," + c.Operand + ")"
+	return "contains(" + c.Path + "," + subKey(c.id) + ")"
 }
 
 func (c Contains) AV() map[string]*dynamodb.AttributeValue {
-	return nil
+	key := subKey(c.id)
+	value := valueOfType(c.Operand, c.Typ...)
+	return map[string]*dynamodb.AttributeValue{key: &value}
 }
 
-func (cf ConditionFunc) Contains(path, operand string) ConditionFunc {
+func (cf ConditionFunc) Contains(path, operand string, typ ...string) ConditionFunc {
 	return func(id ...string) Condition {
 		c := cf(id...)
-		c.Clauses = append(c.Clauses, Contains{clauseID(c), path, operand})
+		c.Clauses = append(c.Clauses, Contains{clauseID(c), path, operand, typ})
 		return c
 	}
 }
