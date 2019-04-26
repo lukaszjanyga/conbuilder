@@ -5,41 +5,9 @@ import (
 	"strings"
 )
 
-type Clause interface {
-	String() string
-	Subbed() string
-	AV() map[string]*dynamodb.AttributeValue
-}
-
 type Condition struct {
 	id      string
 	Clauses []Clause
-}
-
-type ConditionFunc func(id ...string) Condition
-
-func (cf ConditionFunc) String() string {
-	return cf().String()
-}
-
-func (cf ConditionFunc) Subbed() string {
-	return cf().Subbed()
-}
-
-func (cf ConditionFunc) AV() map[string]*dynamodb.AttributeValue {
-	return cf().AV()
-}
-
-func New() ConditionFunc {
-	return func(id ...string) Condition {
-		idVal := "0"
-		if len(id) > 0 {
-			idVal = id[0]
-		}
-		return Condition{
-			id: idVal,
-		}
-	}
 }
 
 func (c Condition) String() string {
@@ -75,6 +43,32 @@ func (c Condition) AV() map[string]*dynamodb.AttributeValue {
 	return avs
 }
 
+type ConditionFunc func(id ...string) Condition
+
+func New() ConditionFunc {
+	return func(id ...string) Condition {
+		idVal := "0"
+		if len(id) > 0 {
+			idVal = id[0]
+		}
+		return Condition{
+			id: idVal,
+		}
+	}
+}
+
+func (cf ConditionFunc) String() string {
+	return cf().String()
+}
+
+func (cf ConditionFunc) Subbed() string {
+	return cf().Subbed()
+}
+
+func (cf ConditionFunc) AV() map[string]*dynamodb.AttributeValue {
+	return cf().AV()
+}
+
 func (cf ConditionFunc) Inner(condFunc ConditionFunc) ConditionFunc {
 	return func(id ...string) Condition {
 		c := cf(id...)
@@ -103,8 +97,9 @@ func (cf ConditionFunc) Or() ConditionFunc {
 func (cf ConditionFunc) Not(condFunc ConditionFunc) ConditionFunc {
 	return func(id ...string) Condition {
 		c := cf(id...)
-		condition := condFunc(clauseID(c))
-		c.Clauses = append(c.Clauses, condition)
+		innerID := clauseID(c)
+		condition := condFunc(innerID)
+		c.Clauses = append(c.Clauses, Not{innerID, condition})
 		return c
 	}
 }
