@@ -14,7 +14,7 @@ func (ane AttrNotExists) String() string {
 }
 
 func (ane AttrNotExists) Subbed() string {
-	return "attribute_not_exists(" + ane.Path + ")"
+	return ane.String()
 }
 
 func (ane AttrNotExists) AV() map[string]*dynamodb.AttributeValue {

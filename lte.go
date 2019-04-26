@@ -16,7 +16,7 @@ func (lte LTE) String() string {
 }
 
 func (lte LTE) Subbed() string {
-	return lte.Field + " <= " + lte.Value
+	return lte.Field + " <= " + subKey(lte.id)
 }
 
 func (lte LTE) AV() map[string]*dynamodb.AttributeValue {
