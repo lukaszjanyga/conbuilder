@@ -10,7 +10,7 @@ type In struct {
 	id       string
 	Field    string
 	Operands []string
-	Typ      string
+	Type     string
 }
 
 func (i In) String() string {
@@ -28,7 +28,7 @@ func (i In) Subbed() string {
 func (i In) AV() map[string]*dynamodb.AttributeValue {
 	avs := map[string]*dynamodb.AttributeValue{}
 	for cnt, op := range i.Operands {
-		val := valueOfType(op, i.Typ)
+		val := valueOfType(op, i.Type)
 		avs[subKey(i.id)+fmt.Sprintf("in%d", cnt)] = &val
 	}
 	return avs
@@ -37,7 +37,7 @@ func (i In) AV() map[string]*dynamodb.AttributeValue {
 func (cf ConditionFunc) In(field string, typ string, operands ...string) ConditionFunc {
 	return func(id ...string) Condition {
 		c := cf(id...)
-		c.Clauses = append(c.Clauses, In{id: clauseID(c), Field: field, Operands: operands, Typ: typ})
+		c.Clauses = append(c.Clauses, In{id: clauseID(c), Field: field, Operands: operands, Type: typ})
 		return c
 	}
 }

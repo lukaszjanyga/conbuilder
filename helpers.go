@@ -27,3 +27,11 @@ func valueOfType(value string, typ ...string) dynamodb.AttributeValue {
 	}
 	return dynamodb.AttributeValue{S: &value}
 }
+
+func firstSafe(s []string) string {
+	o := ""
+	if len(s) > 0 {
+		o = s[0]
+	}
+	return o
+}

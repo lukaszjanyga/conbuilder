@@ -8,7 +8,7 @@ type LT struct {
 	id    string
 	Field string
 	Value string
-	Typ   []string
+	Type string
 }
 
 func (lt LT) String() string {
@@ -21,7 +21,7 @@ func (lt LT) Subbed() string {
 
 func (lt LT) AV() map[string]*dynamodb.AttributeValue {
 	key := subKey(lt.id)
-	value := valueOfType(lt.Value, lt.Typ...)
+	value := valueOfType(lt.Value, lt.Type)
 	return map[string]*dynamodb.AttributeValue{
 		key: &value,
 	}
@@ -30,7 +30,7 @@ func (lt LT) AV() map[string]*dynamodb.AttributeValue {
 func (cf ConditionFunc) LT(field, value string, typ ...string) ConditionFunc {
 	return func(id ...string) Condition {
 		c := cf(id...)
-		c.Clauses = append(c.Clauses, LT{clauseID(c), field, value, typ})
+		c.Clauses = append(c.Clauses, LT{clauseID(c), field, value, firstSafe(typ)})
 		return c
 	}
 }

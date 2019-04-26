@@ -8,7 +8,7 @@ type BeginsWith struct {
 	id     string
 	Path   string
 	Substr string
-	Type   []string
+	Type   string
 }
 
 func (bw BeginsWith) String() string {
@@ -21,14 +21,14 @@ func (bw BeginsWith) Subbed() string {
 
 func (bw BeginsWith) AV() map[string]*dynamodb.AttributeValue {
 	key := subKey(bw.id)
-	value := valueOfType(bw.Substr, bw.Type...)
+	value := valueOfType(bw.Substr, bw.Type)
 	return map[string]*dynamodb.AttributeValue{key: &value}
 }
 
 func (cf ConditionFunc) BeginsWith(path, substr string, typ ...string) ConditionFunc {
 	return func(id ...string) Condition {
 		c := cf(id...)
-		c.Clauses = append(c.Clauses, BeginsWith{clauseID(c), path, substr, typ})
+		c.Clauses = append(c.Clauses, BeginsWith{clauseID(c), path, substr, firstSafe(typ)})
 		return c
 	}
 }

@@ -8,7 +8,7 @@ type LTE struct {
 	id    string
 	Field string
 	Value string
-	Typ   []string
+	Type string
 }
 
 func (lte LTE) String() string {
@@ -21,7 +21,7 @@ func (lte LTE) Subbed() string {
 
 func (lte LTE) AV() map[string]*dynamodb.AttributeValue {
 	key := subKey(lte.id)
-	value := valueOfType(lte.Value, lte.Typ...)
+	value := valueOfType(lte.Value, lte.Type)
 	return map[string]*dynamodb.AttributeValue{
 		key: &value,
 	}
@@ -30,7 +30,7 @@ func (lte LTE) AV() map[string]*dynamodb.AttributeValue {
 func (cf ConditionFunc) LTE(field, value string, typ ...string) ConditionFunc {
 	return func(id ...string) Condition {
 		c := cf(id...)
-		c.Clauses = append(c.Clauses, LTE{clauseID(c), field, value, typ})
+		c.Clauses = append(c.Clauses, LTE{clauseID(c), field, value, firstSafe(typ)})
 		return c
 	}
 }

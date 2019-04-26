@@ -8,7 +8,7 @@ type GT struct {
 	id    string
 	Field string
 	Value string
-	Typ   []string
+	Type string
 }
 
 func (gt GT) String() string {
@@ -21,14 +21,14 @@ func (gt GT) Subbed() string {
 
 func (gt GT) AV() map[string]*dynamodb.AttributeValue {
 	key := subKey(gt.id)
-	value := valueOfType(gt.Value, gt.Typ...)
+	value := valueOfType(gt.Value, gt.Type)
 	return map[string]*dynamodb.AttributeValue{key: &value}
 }
 
 func (cf ConditionFunc) GT(field, value string, typ ...string) ConditionFunc {
 	return func(id ...string) Condition {
 		c := cf(id...)
-		c.Clauses = append(c.Clauses, GT{clauseID(c), field, value, typ})
+		c.Clauses = append(c.Clauses, GT{clauseID(c), field, value, firstSafe(typ)})
 		return c
 	}
 }

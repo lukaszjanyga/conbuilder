@@ -8,7 +8,7 @@ type NEq struct {
 	id    string
 	Field string
 	Value string
-	Typ   []string
+	Type string
 }
 
 func (ne NEq) String() string {
@@ -21,7 +21,7 @@ func (ne NEq) Subbed() string {
 
 func (ne NEq) AV() map[string]*dynamodb.AttributeValue {
 	key := subKey(ne.id)
-	value := valueOfType(ne.Value, ne.Typ...)
+	value := valueOfType(ne.Value, ne.Type)
 	return map[string]*dynamodb.AttributeValue{
 		key: &value,
 	}
@@ -30,7 +30,7 @@ func (ne NEq) AV() map[string]*dynamodb.AttributeValue {
 func (cf ConditionFunc) NEq(field, value string, typ ...string) ConditionFunc {
 	return func(id ...string) Condition {
 		c := cf(id...)
-		c.Clauses = append(c.Clauses, NEq{clauseID(c), field, value, typ})
+		c.Clauses = append(c.Clauses, NEq{clauseID(c), field, value, firstSafe(typ)})
 		return c
 	}
 }

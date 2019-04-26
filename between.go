@@ -9,7 +9,7 @@ type Between struct {
 	Field      string
 	BoundLeft  string
 	BoundRight string
-	Typ        []string
+	Type string
 }
 
 func (b Between) String() string {
@@ -23,8 +23,8 @@ func (b Between) Subbed() string {
 func (b Between) AV() map[string]*dynamodb.AttributeValue {
 	keyLeft := subKey(b.id + "_l")
 	keyRight := subKey(b.id + "_r")
-	valueLeft := valueOfType(b.BoundLeft, b.Typ...)
-	valueRight := valueOfType(b.BoundRight, b.Typ...)
+	valueLeft := valueOfType(b.BoundLeft, b.Type)
+	valueRight := valueOfType(b.BoundRight, b.Type)
 	return map[string]*dynamodb.AttributeValue{
 		keyLeft:  &valueLeft,
 		keyRight: &valueRight,
@@ -34,7 +34,7 @@ func (b Between) AV() map[string]*dynamodb.AttributeValue {
 func (cf ConditionFunc) Between(field, boundLeft, boundRight string, typ ...string) ConditionFunc {
 	return func(id ...string) Condition {
 		c := cf(id...)
-		c.Clauses = append(c.Clauses, Between{clauseID(c), field, boundLeft, boundRight, typ})
+		c.Clauses = append(c.Clauses, Between{clauseID(c), field, boundLeft, boundRight, firstSafe(typ)})
 		return c
 	}
 }
